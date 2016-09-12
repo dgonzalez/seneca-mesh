@@ -19,7 +19,7 @@ module.exports = mesh
 module.exports.resolve_bases = resolve_bases
 
 var DEFAULT_HOST = module.exports.DEFAULT_HOST = '127.0.0.1'
-var DEFAULT_PORT = module.exports.DEFAULT_PORT = 39999
+var MESH_PORT = module.exports.MESH_PORT = 39999
 
 var optioner = Optioner({
   pin: Joi.alternatives().try(Joi.string(), Joi.object()),
@@ -80,6 +80,7 @@ var optioner = Optioner({
 })
 
 function mesh (options) {
+  MESH_PORT = options['mesh-port'] || MESH_PORT
   var seneca = this
 
   optioner(options, function (err, options) {
@@ -438,9 +439,9 @@ var addbase_funcmap = {
 
     if (0 === bases.length) {
       if (null != host && host !== DEFAULT_HOST) {
-        add.push(host + ':' + DEFAULT_PORT)
+        add.push(host + ':' + MESH_PORT)
       }
-      add.push(DEFAULT_HOST + ':' + DEFAULT_PORT)
+      add.push(DEFAULT_HOST + ':' + MESH_PORT)
     }
 
     // console.log('FB guess',add)
@@ -463,7 +464,7 @@ var addbase_funcmap = {
         seneca_mesh: true,
         isbase: options.isbase,
         host: options.host || DEFAULT_HOST,
-        port: options.port || DEFAULT_PORT
+        port: options.port || MESH_PORT
       }
     })
 
@@ -499,7 +500,7 @@ var addbase_funcmap = {
     var first = true
 
     var base_addr = (options.host || DEFAULT_HOST) + ':' +
-          (options.port || DEFAULT_PORT)
+          (options.port || MESH_PORT)
 
     if (options.isbase) {
       var ri = options.discover.registry.refresh_interval
@@ -589,7 +590,7 @@ function resolve_bases (orig_bases, options, rif) {
   bases = bases.map(function (base) {
     // host:port -> host:port
     // :port -> DEFAULT_HOST:port, host:port
-    // host -> host:DEFAULT_PORT
+    // host -> host:MESH_PORT
     var parts = base.match(/^(.+):(\d+)$/)
     if (parts) {
       parts = parts.slice(1, 3)
@@ -602,7 +603,7 @@ function resolve_bases (orig_bases, options, rif) {
         }
       }
       else {
-        parts = [base, DEFAULT_PORT]
+        parts = [base, MESH_PORT]
       }
     }
 
